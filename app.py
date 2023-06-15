@@ -1,24 +1,11 @@
 import flask
 
-from flask import request, Flask, jsonify, render_template
+from flask import request, Flask, jsonify, render_template, redirect, url_for
 import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
-
-def main():
-    """main"""
-    # try:     
-
-        # add_data(cur, conn, "TATA","TATA")
-
-        # get_all_data(cur)
-
-        # get_data(cur, 7)
-
-        #fermeture de la connexion à la base de données
- 
        
 
 def connect():
@@ -31,6 +18,7 @@ def connect():
                 database = "igudfqsi"
             )
         cur = conn.cursor(cursor_factory=RealDictCursor)
+        # cur = conn.cursor()
         print("La connexion PostgreSQL est ouverte")
         return [conn, cur]
     except (Exception, psycopg2.Error) as error :
@@ -45,9 +33,18 @@ def version():
     cur.close()
     conn.close()
 
-@app.route("/")
+@app.route("/", methods=["POST", "GET"])
 def home_page():
+    if request.method == "POST":
+        if 'view_all' in request.form:
+            return redirect(url_for("get_all_data"))
+        elif 'view_one' in request.form:
+            return redirect(url_for('view_one_data'))
     return render_template('home_page.html')
+
+@app.route("/one")
+def view_one_data():
+    return render_template('view_one.html')
 
 @app.route("/all")
 def get_all_data():
@@ -97,4 +94,3 @@ def remove_data(cur, conn, id):
 
 if __name__=="__main__":
     app.run()
-    main()
